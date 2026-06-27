@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Secrets / runtime data
+.env
+.env.local
+.env.*.local
+tokens.json
+todos.json
+*.pem
+# Keycloak id_token server-side store (MED-4)
+id-tokens.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local dev tooling and personal config (not part of the project)
+.claude/
+.codegraph
+.codegraph/
+.optimia/
+CLAUDE.md
+AGENTS.md
+GEMINI.md
+.github/copilot-instructions.md
