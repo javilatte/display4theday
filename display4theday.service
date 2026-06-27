@@ -1,0 +1,45 @@
+[Unit]
+Description=display4theday dashboard
+After=network.target ollama.service
+Wants=ollama.service
+
+[Service]
+# If Keycloak uses a self-signed cert, point this at the exported CA PEM:
+# Environment=NODE_EXTRA_CA_CERTS=/path/to/keycloak-ca.pem
+Type=simple
+# Edit these before installing:
+User=display4theday
+WorkingDirectory=/opt/display4theday
+ExecStart=/usr/bin/node server.js
+# If you use a Node version manager, point ExecStart at the right binary
+# (e.g. /home/<user>/.nvm/versions/node/v20.x.x/bin/node) and set
+# Environment="PATH=..." accordingly.
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=display4theday
+
+# Hardening (LOW-9)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+# tokens.json and todos.json live here. The service writes them with
+# mode 0600; the directory only needs to be readable/writable by User=.
+StateDirectory=display4theday
+ReadWritePaths=/var/lib/display4theday
+# Drop extra capabilities; the app needs none.
+CapabilityBoundingSet=
+AmbientCapabilities=
+# If you want to load .env from /etc, uncomment:
+# EnvironmentFile=-/etc/display4theday/display4theday.env
+
+[Install]
+WantedBy=multi-user.target
