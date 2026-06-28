@@ -6,6 +6,8 @@ import { join } from 'path';
 
 const tmpRoot = mkdtempSync(join(tmpdir(), 'd4td-calendar-test-'));
 process.env.DATA_DIR = tmpRoot;
+process.env.AUTH_MODE = '';
+process.env.AUTH_ENABLED = 'false';
 
 const { createApp } = await import('../server.js');
 const app = createApp();

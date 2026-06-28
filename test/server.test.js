@@ -7,6 +7,10 @@ import { join } from 'path';
 // Sandbox the data files to a temp dir before importing server.js
 const tmpRoot = mkdtempSync(join(tmpdir(), 'd4td-test-'));
 process.env.DATA_DIR = tmpRoot;
+// Run without auth so all endpoints are accessible; dotenv won't override
+// an already-set var, so this takes precedence over any local .env file.
+process.env.AUTH_MODE = '';
+process.env.AUTH_ENABLED = 'false';
 
 const { createApp } = await import('../server.js');
 const app = createApp();

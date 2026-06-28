@@ -3,6 +3,7 @@
 ![Node.js ≥ 18](https://img.shields.io/badge/node-%E2%89%A518-brightgreen)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 ![Self-hosted](https://img.shields.io/badge/self--hosted-yes-orange)
+![Status: beta](https://img.shields.io/badge/status-beta-yellow)
 
 ![Screenshot](img/screenshot.png)
 
@@ -310,6 +311,14 @@ If you fork or mirror this repo to a public host, run through this list before p
 4. Rotate any API keys that ever lived on the host:
    `GOOGLE_CLIENT_SECRET`, `YOUTUBE_API_KEY`, `KEYCLOAK_CLIENT_SECRET`,
    `SESSION_SECRET`.
+
+## Contributing
+
+This project is in beta. Bug reports, ideas, and pull requests are welcome.
+
+- Open an issue to report a bug or suggest a feature before writing code
+- Keep PRs focused — one thing per PR
+- Run `npm test && npm run lint` before submitting
 
 ## License
 
