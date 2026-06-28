@@ -65,7 +65,7 @@ function updateClock() {
 
   // Date line
   document.getElementById('date-line').textContent =
-    `${DAYS_ES[now.getDay()]}, ${now.getDate()} de ${MONTHS_ES[now.getMonth()]} de ${now.getFullYear()}`;
+    `${DAYS_ES[now.getDay()][0].toUpperCase() + DAYS_ES[now.getDay()].slice(1)}, ${now.getDate()} de ${MONTHS_ES[now.getMonth()]} de ${now.getFullYear()}`;
 
   // Period change check
   const period = getPeriod(h);
