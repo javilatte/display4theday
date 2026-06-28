@@ -160,7 +160,6 @@ body {
   font-size: clamp(1rem, 1.6vw, 1.3rem);
   color: var(--t2);
   margin-top: 6px;
-  text-transform: capitalize;
   font-weight: 400;
 }
 
