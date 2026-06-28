@@ -49,30 +49,25 @@ All configuration is read from environment variables (or a `.env` file, loaded v
 
 ### Server
 
-| Variable   | Required? | Default       | Description                                                    |
-| ---------- | --------- | ------------- | -------------------------------------------------------------- |
-| `PORT`     | no        | `3000`        | HTTP port                                                      |
-| `HOST`     | no        | `127.0.0.1`   | Bind address. Set to `0.0.0.0` to expose on the local network  |
-| `DATA_DIR` | no        | _cwd_         | Directory for `tokens.json` and `todos.json` (useful in tests) |
+| Variable               | Default       | Description                                                              |
+| ---------------------- | ------------- | ------------------------------------------------------------------------ |
+| `PORT`                 | `3000`        | HTTP port                                                                |
+| `HOST`                 | `127.0.0.1`   | Bind address. Set to `0.0.0.0` to expose on the local network            |
+| `DATA_DIR`             | _cwd_         | Directory for `todos.json` (useful in tests)                             |
+| `TRUST_PROXY`          | —             | Number of reverse-proxy hops to trust for `X-Forwarded-*` headers (`1` behind Nginx/Caddy) |
+| `WEATHER_DEFAULT_LAT`  | `0`           | Default latitude for the weather panel (used before the browser shares location) |
+| `WEATHER_DEFAULT_LON`  | `0`           | Default longitude                                                        |
+| `WEATHER_DEFAULT_CITY` | `Sin ubicación` | Display name shown before geolocation resolves                         |
 
 ### Google Calendar (optional)
 
-There are two ways to show calendar events:
+Paste the embed URL from Google Calendar settings into `GOOGLE_CALENDAR_EMBED_URL`. No OAuth or API key required — the calendar is rendered in an iframe.
 
-**Option A — Google Calendar embed (simplest):** paste the embed URL from Google Calendar settings into `GOOGLE_CALENDAR_EMBED_URL`. No OAuth setup required; the calendar is rendered in an iframe.
+| Variable                    | Default | Description                                             |
+| --------------------------- | ------- | ------------------------------------------------------- |
+| `GOOGLE_CALENDAR_EMBED_URL` | —       | `https://calendar.google.com/calendar/embed?src=…` URL |
 
-| Variable                    | Required?      | Default | Description                                              |
-| --------------------------- | -------------- | ------- | -------------------------------------------------------- |
-| `GOOGLE_CALENDAR_EMBED_URL` | for embed mode | —       | `https://calendar.google.com/calendar/embed?src=…` URL  |
-
-**Option B — Google Calendar API (full sync):** events are fetched server-side and displayed natively. Requires an OAuth 2.0 Web client in Google Cloud.
-
-| Variable               | Required?    | Default                                      | Description                                   |
-| ---------------------- | ------------ | -------------------------------------------- | --------------------------------------------- |
-| `GOOGLE_CLIENT_ID`     | for API mode | —                                            | OAuth 2.0 web client ID                       |
-| `GOOGLE_CLIENT_SECRET` | for API mode | —                                            | OAuth 2.0 web client secret                   |
-| `GOOGLE_REDIRECT_URI`  | for API mode | `http://localhost:3000/auth/google/callback` | Must match the URI configured in Google Cloud |
-| `GOOGLE_CALENDAR_ID`   | no           | `primary`                                    | Comma-separated list of calendar IDs to merge |
+To get the URL: Google Calendar → Settings → your calendar → "Integrate calendar" → copy the `src` attribute from the embed code.
 
 ### AI assistant (optional)
 
@@ -134,13 +129,6 @@ npm run hash-password mypassword
 | `SESSION_SECRET`         | yes       | 32+ random bytes for signing the session cookie. `openssl rand -hex 32` |
 | `SESSION_COOKIE_SECURE`  | no        | `true` when serving over HTTPS                                       |
 
-## Connecting Google Calendar
-
-1. Create an OAuth 2.0 Web client in Google Cloud and add `http://localhost:3000/auth/google/callback` (or your equivalent) as an authorised redirect URI.
-2. Put the client ID and secret in `.env`.
-3. Start the server and visit `http://localhost:3000/auth/google` once. The resulting `tokens.json` is stored locally and ignored by git.
-4. The OAuth flow uses a CSRF `state` parameter; the callback rejects unknown or expired states with HTTP 400.
-
 ## Keycloak setup (`AUTH_MODE=keycloak`)
 
 1. **Create a realm** (e.g. `display4theday`) in your Keycloak admin console.
@@ -180,11 +168,9 @@ sudo systemctl enable --now display4theday
 sudo journalctl -u display4theday -f
 ```
 
-When `AUTH_ENABLED=true`, place the dashboard behind a TLS-terminating reverse
+When `AUTH_MODE` is set, place the dashboard behind a TLS-terminating reverse
 proxy (Nginx, Caddy, Traefik…) so that the session cookie can be marked
-`Secure`. Example Nginx config in `/tmp/display4theday-nginx.conf` is out of
-scope for this README but the same TLS cert/key that fronts Keycloak on
-`:8443` is usually the easiest choice.
+`Secure`. Set `SESSION_COOKIE_SECURE=true` and `TRUST_PROXY=1` in `.env`.
 
 ## Project layout
 
@@ -210,9 +196,12 @@ scope for this README but the same TLS cert/key that fronts Keycloak on
 │   └── patch-oauth4webapi.mjs  # Postinstall fix for oauth4webapi crypto import
 ├── test/                  # node:test suite (no extra dependencies)
 │   ├── server.test.js
-│   ├── ai-backend.test.js
 │   ├── auth.test.js
-│   └── oauth-state.test.js
+│   ├── auth-rate-limit.test.js
+│   ├── password-auth.test.js
+│   ├── calendar-embed.test.js
+│   ├── ai-backend.test.js
+│   └── util.test.js
 ├── download-gsap.sh       # Re-fetches the vendored gsap files
 ├── display4theday.service # systemd unit template
 ├── eslint.config.js
@@ -224,10 +213,9 @@ scope for this README but the same TLS cert/key that fronts Keycloak on
 
 ## Data files
 
-- `tokens.json` — Google OAuth tokens. Created on first login, gitignored.
 - `todos.json` — Todo items. Created on first write, gitignored.
 
-Both files live in `DATA_DIR` (defaults to the project root).
+Lives in `DATA_DIR` (defaults to the project root), written with mode `0600`.
 
 ## Development
 
